@@ -22,17 +22,30 @@ A classic arcade-style space shooter game built with Python and Pygame. Defend y
 - Python 3.8 or higher
 - Pygame 2.0 or higher
 
-## 🚀 Installation
+## 🚀 Quick Start
+
+Get up and running with a single command:
+
+```bash
+git clone https://github.com/Usman0220/usmangame.git && cd usmangame && pip install pygame && python main.py
+```
+
+Or manually:
 
 1. **Clone the repository:**
    ```bash
-   git clone <repository-url>
-   cd <project-directory>
+   git clone https://github.com/Usman0220/usmangame.git
+   cd usmangame
    ```
 
 2. **Install dependencies:**
    ```bash
    pip install pygame
+   ```
+
+3. **Run the game:**
+   ```bash
+   python main.py
    ```
 
 ## 🎮 How to Play
