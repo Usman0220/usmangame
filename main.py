@@ -13,6 +13,10 @@ pygame.init()
 # create the screen
 screen = pygame.display.set_mode((800, 600))
 
+# Clock for frame rate control
+clock = pygame.time.Clock()
+FPS = 60
+
 # Background
 background = pygame.image.load('background.jpg')
 
@@ -24,6 +28,10 @@ mixer.music.play(-1)
 pygame.display.set_caption("space invader")
 icon = pygame.image.load('ufo.png')
 pygame.display.set_icon(icon)
+
+# Preload sound effects
+laser_sound = mixer.Sound('laser.wav')
+explosion_sound = mixer.Sound('explosion.wav')
 
 # Player
 playerImg = pygame.image.load('player.png')
@@ -121,8 +129,7 @@ while running:
                 playerX_change = 0.7
             if event.key == pygame.K_SPACE:
                 if bullet_state == "ready":
-                    bullet_Sound = mixer.Sound('laser.wav')
-                    bullet_Sound.play()
+                    laser_sound.play()
                     # Get the current x coordinate of the spaceship
                     bulletX = playerX
                     fire_bullet(bulletX, bulletY)
@@ -165,8 +172,7 @@ while running:
         # collision
         collision = isocollision(enemyX[i], enemyY[i], bulletX, bulletY)
         if collision:
-            explosion_Sound = mixer.Sound('explosion.wav')
-            explosion_Sound.play()
+            explosion_sound.play()
             bulletY = 480
             bullet_state = "ready"
             score_value += 1
@@ -188,3 +194,6 @@ while running:
     player(playerX, playerY)
     show_score(textX, textY)
     pygame.display.update()
+    
+    # Control frame rate
+    clock.tick(FPS)
