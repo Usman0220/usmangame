@@ -20,24 +20,44 @@ FPS = 60
 # Background
 background = pygame.image.load('background.jpg')
 
-# Background sound
-mixer.music.load('background.wav')
-mixer.music.play(-1)
+# Initialize mixer with error handling for environments without audio
+try:
+    pygame.mixer.init()
+    mixer_initialized = True
+except:
+    mixer_initialized = False
+    pass
+
+# Background sound (with error handling for environments without audio)
+if mixer_initialized:
+    try:
+        mixer.music.load('background.wav')
+        mixer.music.play(-1)
+    except:
+        pass  # Continue without background music if audio not available
 
 # Caption and Icon
 pygame.display.set_caption("space invader")
 icon = pygame.image.load('ufo.png')
 pygame.display.set_icon(icon)
 
-# Preload sound effects
-laser_sound = mixer.Sound('laser.wav')
-explosion_sound = mixer.Sound('explosion.wav')
+# Preload sound effects (with error handling)
+laser_sound = None
+explosion_sound = None
+if mixer_initialized:
+    try:
+        laser_sound = mixer.Sound('laser.wav')
+        explosion_sound = mixer.Sound('explosion.wav')
+    except:
+        pass  # Continue without sound effects if audio not available
 
 # Player
 playerImg = pygame.image.load('player.png')
+playerImg = pygame.transform.scale(playerImg, (64, 64))  # Optimize size
 playerX = 370
 playerY = 480
 playerX_change = 0
+player_speed = 5  # Increased speed
 
 # Enemy
 enemyImg = []
@@ -46,23 +66,26 @@ enemyY = []
 enemyX_change = []
 enemyY_change = []
 num_of_enemies = 6
+enemy_speed = 3  # Increased enemy speed
 
 for i in range(num_of_enemies):
-    enemyImg.append(pygame.image.load('enemy.png'))
+    img = pygame.image.load('enemy.png')
+    enemyImg.append(pygame.transform.scale(img, (64, 64)))  # Optimize size
     enemyX.append(random.randint(0, 735))
     enemyY.append(random.randint(50, 150))
-    enemyX_change.append(0.3)
-    enemyY_change.append(7)
+    enemyX_change.append(enemy_speed)
+    enemyY_change.append(40)
 
 # Bullet
 
 # Ready - Fou cannot se the bullet on the screen
 # Fire - The bullet is currently moving
 bulletImg = pygame.image.load('bullet.png')
+bulletImg = pygame.transform.scale(bulletImg, (32, 32))  # Optimize size
 bulletX = 0
 bulletY = 480
 bulletX_change = 0
-bulletY_change = 2
+bulletY_change = 7  # Increased bullet speed
 bullet_state = "ready"
 
 # score
@@ -129,7 +152,8 @@ while running:
                 playerX_change = 0.7
             if event.key == pygame.K_SPACE:
                 if bullet_state == "ready":
-                    laser_sound.play()
+                    if laser_sound:
+                        laser_sound.play()
                     # Get the current x coordinate of the spaceship
                     bulletX = playerX
                     fire_bullet(bulletX, bulletY)
@@ -141,7 +165,7 @@ while running:
     # 5 = 5 + -0.1 -> 5 = 5 - 0.1
     # 5 = 5 + 0.1
     # checking for boundaries of spaceships
-    playerX += playerX_change
+    playerX += playerX_change * player_speed
 
     if playerX <= 0:
         playerX = 0
@@ -155,7 +179,7 @@ while running:
     for i in range(num_of_enemies):
 
         # Game over
-        if enemyY[i] > 200:
+        if enemyY[i] > 400:
             for j in range(num_of_enemies):
                 enemyY[j] = 20000
             game_over_text()
@@ -163,16 +187,17 @@ while running:
 
         enemyX[i] += enemyX_change[i]
         if enemyX[i] <= 0:
-            enemyX_change[i] = 0.3
+            enemyX_change[i] = enemy_speed
             enemyY[i] += enemyY_change[i]
         elif enemyX[i] >= 736:
-            enemyX_change[i] = -0.3
+            enemyX_change[i] = -enemy_speed
             enemyY[i] += enemyY_change[i]
 
         # collision
         collision = isocollision(enemyX[i], enemyY[i], bulletX, bulletY)
         if collision:
-            explosion_sound.play()
+            if explosion_sound:
+                explosion_sound.play()
             bulletY = 480
             bullet_state = "ready"
             score_value += 1
